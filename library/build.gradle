@@ -49,7 +49,7 @@ publish {
     artifactId = 'DecalsEditWrapper'//项目名称
     publishVersion = "$VERSION_NAME"//版本号
     desc = '具有移动，缩放，旋转功能的View包装类'
-    website = 'https://github.com/li504799868/SlidingCardLayout'
+    website = 'https://github.com/li504799868/DecalsDemo'
 }
 
 repositories {

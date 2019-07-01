@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DecalsEditWrapper">
+        <attr name="borderWidth" format="dimension"/>
+        <attr name="borderColor" format="color"/>
+        <attr name="btnSize" format="dimension"/>'
+        <attr name="offsetX" format="dimension"/>
+        <attr name="offsetY" format="dimension"/>
+        <attr name="deleteDrawable" format="reference"/>
+        <attr name="rotateDrawable" format="reference"/>
+        <attr name="scaleDrawable" format="reference"/>
+    </declare-styleable>
+</resources>

@@ -2,15 +2,16 @@ package com.lzp.decals
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import android.widget.TextView
+import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.hypot
@@ -34,6 +35,11 @@ class DecalsEditWrapper @JvmOverloads constructor(
         private const val SCALE = 2
         private const val FINGER_SCALE = 4
         private const val DELETE = 3
+
+        /**
+         *  空白的bitmap，为了判断缓存是否是有效的
+         * */
+        private var weakReference: WeakReference<Bitmap>? = null
 
     }
 
@@ -179,6 +185,7 @@ class DecalsEditWrapper @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val resultWidthMeasureSpec = if (measuredWidth < minSize) {
             MeasureSpec.makeMeasureSpec(minSize.toInt(), MeasureSpec.getMode(widthMeasureSpec))
         } else {
@@ -189,7 +196,7 @@ class DecalsEditWrapper @JvmOverloads constructor(
         } else {
             heightMeasureSpec
         }
-        super.onMeasure(resultWidthMeasureSpec, resultHeightMeasureSpec)
+        setMeasuredDimension(resultWidthMeasureSpec, resultHeightMeasureSpec)
 
         scale = measuredWidth.toFloat() / measuredHeight
         // 计算三个按钮的位置
@@ -418,41 +425,20 @@ class DecalsEditWrapper @JvmOverloads constructor(
      * 缩放， 不能设置scale，因为Scale会把按钮变小，所以一定要改变自身的大小
      * */
     private fun performOnScale(xDistance: Float, yDistance: Float) {
+        autoWireBitmapCacheForTextView(getChildAt(0))
         val params = layoutParams as MarginLayoutParams
         if (scale < 1) {
             scaleFromCenter(params, xDistance, xDistance * scale, scale)
         } else {
             scaleFromCenter(params, yDistance, yDistance * scale, scale)
         }
-
-//        if (scale < 1) {
-//            var widthAdd = xDistance
-//            var heightAdd = yDistance
-//            var newWidth = params.width + xDistance.toInt()
-//            var newHeight = (params.height + xDistance * scale).toInt()
-        // 检查最小宽高
-//            if (newWidth < minSize) {
-//                newWidth = minSize.toInt()
-//                newHeight = (minSize * scale).toInt()
-//            }
-//
-//        } else {
-//            params.height = params.height + yDistance.toInt()
-//            params.width = (params.width + yDistance * scale).toInt()
-        // 检查最小宽高
-//            if (params.height < minSize) {
-//                params.height = minSize.toInt()
-//                params.width = (minSize * scale).toInt()
-//            }
-//        }
-//        layoutParams = params
     }
 
     /**
      * 旋转
      *  */
     private fun performOnRotate(rawX: Float, rawY: Float) {
-
+        autoWireBitmapCacheForTextView(getChildAt(0))
         // 中心点
         val centerX = width / 2 + translationX + offsetX
         // 加上绝对坐标的偏移值，修正旋转的中心点的误差
@@ -486,7 +472,7 @@ class DecalsEditWrapper @JvmOverloads constructor(
             newDegree = -newDegree
         }
         rotation = (rotation + newDegree).toFloat()
-
+        listener?.onRotate(this, (rotation + newDegree).toFloat())
     }
 
     private fun calculatePointLength(startX: Float, startY: Float, stopX: Float, stopY: Float): Double {
@@ -508,6 +494,25 @@ class DecalsEditWrapper @JvmOverloads constructor(
         requestFocus()
     }
 
+    private fun autoWireBitmapCacheForTextView(child: View) {
+        if (child !is TextView) {
+            return
+        }
+        if (child.background == null) {
+            child.buildDrawingCache()
+            val bitmap = child.drawingCache
+            if (weakReference == null || weakReference!!.get() == null) {
+                val emptyBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
+                weakReference = WeakReference(emptyBitmap)
+            }
+            if (weakReference!!.get()!!.sameAs(bitmap)) {
+                return
+            }
+            child.text = ""
+            child.background = BitmapDrawable(resources, bitmap)
+        }
+    }
+
     /**
      *  计算点与点之间的距离
      * */
@@ -515,6 +520,8 @@ class DecalsEditWrapper @JvmOverloads constructor(
     interface DecalsEditWrapperListener {
 
         fun onClickDelete(view: DecalsEditWrapper)
+
+        fun onRotate(view: DecalsEditWrapper, degree: Float)
 
         fun onScale(view: DecalsEditWrapper, oldWidth: Int, oldHeight: Int, newWidth: Float, newHeight: Float)
 

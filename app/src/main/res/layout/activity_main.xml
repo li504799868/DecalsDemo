@@ -15,15 +15,15 @@
             android:background="#000000"
             android:layout_weight="1">
 
-        <com.lzp.decals.DecalsEditWrapper
-                android:layout_width="200dp"
-                app:borderWidth="5dp"
-                app:borderColor="@color/colorAccent"
-                app:btnSize="80dp"
-                app:deleteDrawable="@drawable/icon_shanchu"
-                app:rotateDrawable="@drawable/icon_shanchu"
-                app:scaleDrawable="@drawable/icon_shanchu"
-                android:layout_height="200dp"/>
+        <!--<com.lzp.decals.DecalsEditWrapper-->
+                <!--android:layout_width="200dp"-->
+                <!--app:borderWidth="5dp"-->
+                <!--app:borderColor="@color/colorAccent"-->
+                <!--app:btnSize="80dp"-->
+                <!--app:deleteDrawable="@drawable/icon_shanchu"-->
+                <!--app:rotateDrawable="@drawable/icon_shanchu"-->
+                <!--app:scaleDrawable="@drawable/icon_shanchu"-->
+                <!--android:layout_height="200dp"/>-->
 
     </FrameLayout>
 

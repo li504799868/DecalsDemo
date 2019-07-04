@@ -494,6 +494,9 @@ class DecalsEditWrapper @JvmOverloads constructor(
         requestFocus()
     }
 
+    /**
+     *  为TextView设置自己的缓存背景，解决emoji表情不能旋转的问题
+     * */
     private fun autoWireBitmapCacheForTextView(child: View) {
         if (child !is TextView) {
             return
